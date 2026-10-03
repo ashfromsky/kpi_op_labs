@@ -1,0 +1,66 @@
+name: CI Labs Checker
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  detect-labs:
+    name: Detect Labs
+    runs-on: ubuntu-latest
+    outputs:
+      labs: ${{ steps.find.outputs.labs }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: find
+        name: Find directories with package.json
+        run: |
+          LABS=$(node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const entries = fs.readdirSync(".", { withFileTypes: true });
+            const labs = entries
+              .filter(e => e.isDirectory() && !e.name.startsWith(".") && e.name !== "node_modules" && e.name !== "scripts")
+              .filter(e => fs.existsSync(path.join(e.name, "package.json")))
+              .map(e => e.name)
+              .sort();
+            console.log(JSON.stringify(labs));
+          ')
+          echo "labs=$LABS" >> $GITHUB_OUTPUT
+
+  test:
+    name: Test ${{ matrix.lab }}
+    needs: detect-labs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lab: ${{ fromJson(needs.detect-labs.outputs.labs) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ matrix.lab }}-${{ hashFiles(format('{0}/package-lock.json', matrix.lab)) }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.lab }}-
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.lab }}
+        run: npm ci
+
+      - name: Run tests
+        working-directory: ${{ matrix.lab }}
+        run: npm test

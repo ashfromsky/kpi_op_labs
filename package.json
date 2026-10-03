@@ -1,0 +1,23 @@
+{
+  "name": "kpi-op-labs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KPI OP (Fundamentals of Programming) Labs Solutions",
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/test-labs.mjs",
+    "test:all": "node scripts/test-labs.mjs",
+    "test:reusable": "node scripts/test-labs.mjs Reusable",
+    "test:datatypes": "node scripts/test-labs.mjs DataTypes",
+    "lint": "node scripts/test-labs.mjs --lint-only",
+    "install:all": "node scripts/install-all.mjs"
+  },
+  "keywords": [
+    "kpi",
+    "fundamentals-of-programming",
+    "howprogrammingworks",
+    "labs"
+  ],
+  "author": "ashfromsky",
+  "license": "MIT"
+}
