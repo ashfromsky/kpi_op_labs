@@ -9,6 +9,7 @@
     "test:all": "node scripts/test-labs.mjs",
     "test:reusable": "node scripts/test-labs.mjs Reusable",
     "test:datatypes": "node scripts/test-labs.mjs DataTypes",
+    "test:function": "node scripts/test-labs.mjs Function",
     "lint": "node scripts/test-labs.mjs --lint-only",
     "install:all": "node scripts/install-all.mjs"
   },
